@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/jpaela
+    username: root
+    password: 1111
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  elasticsearch:
+    uris: http://localhost:9200
+
+
+logiing:
+  level:
+    org.elasticsearch.client:TRACE

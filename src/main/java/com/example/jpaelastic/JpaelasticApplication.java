@@ -12,10 +12,13 @@ public class JpaelasticApplication {
 		SpringApplication.run(JpaelasticApplication.class, args);
 	}
 
+	/*
 	@Bean
 	public CommandLineRunner syncToEs(ProductService productService) {
 		return args -> {
 			productService.syncProductsToElasticsearch();
 		};
 	}
+	*/
+
 }

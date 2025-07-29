@@ -5,14 +5,15 @@ import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import com.example.jpaelastic.domain.CreateProductRequestDto;
 import com.example.jpaelastic.domain.Product;
-import com.example.jpaelastic.domain.ProductDocument;
+//import com.example.jpaelastic.domain.ProductDocument;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+//import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHits;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 
@@ -25,8 +26,8 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductDocumentRepository productDocumentRepository;
-    private final ElasticsearchOperations elasticsearchOperations;
+    //private final ProductDocumentRepository productDocumentRepository;
+    //private final ElasticsearchOperations elasticsearchOperations;
 
     public Product createProduct(CreateProductRequestDto dto) {
         // 1. JPA 저장
@@ -34,12 +35,12 @@ public class ProductService {
         Product savedProduct = productRepository.save(product);
 
         // 2. Elasticsearch 저장 (ID는 문자열이어야 하므로 Long -> String 변환)
-        ProductDocument document = new ProductDocument(
-                savedProduct.getId().toString(),
-                savedProduct.getName(),
-                savedProduct.getCategory()
-        );
-        productDocumentRepository.save(document);
+        //ProductDocument document = new ProductDocument(
+          //      savedProduct.getId().toString(),
+            //    savedProduct.getName(),
+              //  savedProduct.getCategory()
+        //);
+        //productDocumentRepository.save(document);
 
         return savedProduct;
     }
@@ -49,6 +50,7 @@ public class ProductService {
         return productRepository.findByNameContaining(name);
     }
 
+    /*
     public List<ProductDocument> searchByNameWithElasticsearch(String name) {
         // match 쿼리 생성 (ES Java Client 방식)
         Query matchQuery = MatchQuery.of(m -> m
@@ -70,7 +72,9 @@ public class ProductService {
                 .map(hit -> hit.getContent())
                 .toList();
     }
+    */
 
+    /*
     public void syncProductsToElasticsearch() {
         List<Product> products = productRepository.findAll();
 
@@ -91,5 +95,26 @@ public class ProductService {
 
         System.out.println("✅ Elasticsearch에 총 " + documents.size() + "개 저장 완료");
     }
+    *
+     */
 
+    public void notifyProductCreatedSync(Product product) {
+        try {
+            Thread.sleep(500);  // I/O 대기 시뮬레이션
+            System.out.println("🔔 [동기 알림] 상품: " + product.getName());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    @Async("productTaskExecutor")
+    public void notifyProductCreatedAsync(Product product) {
+        try {
+            Thread.sleep(500);  // I/O 대기 시뮬레이션
+            System.out.println("🔔 [비동기 알림] 상품: " + product.getName()
+                    + " | Thread: " + Thread.currentThread().getName());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 }
